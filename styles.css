@@ -71,14 +71,6 @@ header p {
   }
 }
 
-
-/* Responsive Logos for Small Screens */
-@media (max-width: 768px) {
-  .promo-icon {
-    width: 80px; /* Adjusted size for smaller screens */
-  }
-}
-
 /* Filters Section */
 #filters {
   text-align: center;
