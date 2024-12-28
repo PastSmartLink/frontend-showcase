@@ -107,12 +107,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rows = csvData.split('\n').slice(1); // Skip header row
                 currentData = rows
                     .filter((row) => row.trim() !== '') // Skip empty rows
-                    .map((row) => {
+                    .map((row, index) => {
                         const columns = row.split(';');
+                        const funding = parseFloat(columns[2]);
+                        const mockFunding = Math.floor(Math.random() * 500000) + 50000; // Mock value between 50,000 and 500,000
+                        const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding; // Use real funding or mock
+
+                        console.log(
+                            `Row ${index + 1}: ${
+                                isNaN(funding) || funding <= 0
+                                    ? `Mocked Funding (${mockFunding})`
+                                    : `Valid Funding (${funding})`
+                            }`
+                        );
+
                         return {
                             GrantTitle: columns[0] || 'N/A',
                             Deadline: columns[1] || 'N/A',
-                            Funding: isNaN(parseFloat(columns[2])) ? 0 : parseFloat(columns[2]), // Handle non-numeric values
+                            Funding: validFunding,
                             Description: columns[3] || 'N/A',
                             Link: columns[4] || '#',
                         };
