@@ -69,10 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const labels = data.map((item, index) =>
             `${item.GrantTitle.substring(0, 15)} (${index + 1})`
         );
-        const values = data.map((item) => parseFloat(item.Funding) || 0); // Ensure valid numbers
-
-        console.log('Chart Labels:', labels); // Debug labels
-        console.log('Chart Values:', values); // Debug values
+        const values = data.map((item) => parseFloat(item.Funding) || 0);
+        const links = data.map((item) => item.Link);
+        const colors = values.map(
+            () =>
+                `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(
+                    Math.random() * 255
+                )}, 0.7)`
+        );
 
         chartInstance = new Chart(ctx, {
             type: 'bar',
@@ -82,19 +86,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     {
                         label: 'Funding Amounts',
                         data: values,
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: colors,
+                        borderColor: colors.map((color) => color.replace('0.7', '1')),
                         borderWidth: 1,
                     },
                 ],
             },
             options: {
                 responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (tooltipItems) => data[tooltipItems[0].dataIndex].GrantTitle,
+                            label: (context) => `Funding: $${context.raw.toLocaleString()}`,
+                        },
+                    },
+                },
                 scales: {
                     x: {
-                        ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 },
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 0,
+                        },
                     },
-                    y: { beginAtZero: true },
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const dataIndex = elements[0].index;
+                        const link = links[dataIndex];
+                        if (link && link !== '#') {
+                            window.open(link, '_blank');
+                        } else {
+                            alert('No valid link for this item.');
+                        }
+                    }
                 },
             },
         });
@@ -104,22 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('cordis_results.csv')
             .then((response) => response.text())
             .then((csvData) => {
-                const rows = csvData.split('\n').slice(1); // Skip header row
+                const rows = csvData.split('\n').slice(1);
                 currentData = rows
-                    .filter((row) => row.trim() !== '') // Skip empty rows
+                    .filter((row) => row.trim() !== '')
                     .map((row, index) => {
                         const columns = row.split(';');
                         const funding = parseFloat(columns[2]);
-                        const mockFunding = Math.floor(Math.random() * 500000) + 50000; // Mock value between 50,000 and 500,000
-                        const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding; // Use real funding or mock
-
-                        console.log(
-                            `Row ${index + 1}: ${
-                                isNaN(funding) || funding <= 0
-                                    ? `Mocked Funding (${mockFunding})`
-                                    : `Valid Funding (${funding})`
-                            }`
-                        );
+                        const mockFunding = Math.floor(Math.random() * 500000) + 50000;
+                        const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding;
 
                         return {
                             GrantTitle: columns[0] || 'N/A',
@@ -130,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                     });
 
-                console.log('Parsed Data:', currentData); // Debug parsed data
                 renderTable(currentData);
                 updatePagination();
                 renderChart(currentData);
