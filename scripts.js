@@ -12,7 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentData = [];
 
     const truncateText = (text, maxLength) => {
-        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        if (text.length <= maxLength) {
+            return text;
+        }
+        const truncated = text.slice(0, maxLength).trim();
+        const lastSpaceIndex = truncated.lastIndexOf(' ');
+        return lastSpaceIndex > 0 ? truncated.slice(0, lastSpaceIndex) + '...' : truncated + '...';
     };
 
     const renderTable = (data) => {
