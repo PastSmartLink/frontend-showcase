@@ -144,35 +144,26 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('cordis_results.csv')
             .then((response) => response.text())
             .then((csvData) => {
-                const rows = csvData.split('\n').slice(1); // Skip the header
+                const rows = csvData.split('\n').slice(1);
                 currentData = rows
-                    .filter((row) => row.trim() !== '') // Exclude empty rows
-                    .map((row, index) => {
-                        const columns = row.split(';'); // Adjust based on your delimiter
-                        
-                        // Debugging: Log rows and column structure
-                        console.log(`Row ${index + 1}:`, columns);
-
-                        // Extract data and handle missing fields
-                        const grantTitle = columns[3]?.trim() || `Project ${index + 1}`;
-                        const funding = parseFloat(columns[4]);
+                    .filter((row) => row.trim() !== '')
+                    .map((row) => {
+                        const columns = row.split(';');
+                        const funding = parseFloat(columns[2]);
                         const mockFunding = Math.floor(Math.random() * 500000) + 50000;
                         const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding;
 
                         const baseURL = 'https://cordis.europa.eu/project/id/';
-                        const link = columns[14]?.trim() ? `${baseURL}${columns[14].trim()}` : '#';
+                        const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
 
                         return {
-                            GrantTitle: grantTitle,
-                            Deadline: columns[10]?.trim() || 'N/A',
+                            GrantTitle: columns[0] || 'N/A',
+                            Deadline: columns[1] || 'N/A',
                             Funding: validFunding,
-                            Description: columns[5]?.trim() || 'N/A',
+                            Description: columns[3] || 'N/A',
                             Link: link,
                         };
                     });
-
-                // Debugging: Check currentData array
-                console.log('Parsed Data:', currentData);
 
                 renderTable(currentData);
                 updatePagination();
