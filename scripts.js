@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentData = [];
 
     const truncateText = (text, maxLength) => {
+        if (!text) return '';
         if (text.length <= maxLength) return text;
         const lastSpaceIndex = text.lastIndexOf(' ', maxLength);
         return lastSpaceIndex > 0 ? text.substring(0, lastSpaceIndex) + '...' : text.substring(0, maxLength) + '...';
@@ -30,13 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         pageData.forEach((item) => {
+            const validLink = item.Link && item.Link.startsWith('https://');
             const row = `
                 <tr>
                     <td title="${item.GrantTitle}">${truncateText(item.GrantTitle, 50)}</td>
-                    <td>${item.Deadline}</td>
+                    <td>${item.Deadline || 'N/A'}</td>
                     <td>${item.Funding || 'N/A'}</td>
                     <td title="${item.Description}">${truncateText(item.Description, 100)}</td>
-                    <td><a href="${item.Link}" target="_blank">Link</a></td>
+                    <td>
+                        ${validLink ? `<a href="${item.Link}" target="_blank">Link</a>` : '<span>No Link</span>'}
+                    </td>
                 </tr>`;
             resultsTableBody.innerHTML += row;
         });
@@ -105,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         zoom: {
                             wheel: { enabled: true },
                             pinch: { enabled: true },
-                            mode: 'x',
+                            mode: 'x', // Zoom in the x-axis
                         },
                         pan: {
                             enabled: true,
@@ -129,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (elements.length > 0) {
                         const dataIndex = elements[0].index;
                         const link = links[dataIndex];
-                        if (link && link !== '#') {
+                        if (link && link.startsWith('https://')) {
                             window.open(link, '_blank');
                         } else {
                             alert('No valid link for this item.');
@@ -149,14 +153,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     .filter((row) => row.trim() !== '')
                     .map((row) => {
                         const columns = row.split(';');
-                        const funding = parseFloat(columns[2]) || Math.floor(Math.random() * 500000) + 50000;
+                        const funding = parseFloat(columns[2]);
+                        const mockFunding = Math.floor(Math.random() * 500000) + 50000;
+                        const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding;
+
+                        const baseURL = 'https://cordis.europa.eu/project/id/';
+                        const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
 
                         return {
-                            GrantTitle: columns[3] || 'Unnamed Project',
-                            Deadline: columns[10] || 'N/A',
-                            Funding: funding,
-                            Description: columns[5] || 'No Description Available',
-                            Link: columns[14]?.trim() || '#',
+                            GrantTitle: columns[0]?.trim() || 'N/A',
+                            Deadline: columns[1]?.trim() || 'N/A',
+                            Funding: validFunding,
+                            Description: columns[3]?.trim() || 'N/A',
+                            Link: link.trim(),
                         };
                     });
 
