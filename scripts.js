@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chartInstance.destroy();
         }
 
-        const labels = data.map((item) =>
-            item.GrantTitle.length > 30 ? item.GrantTitle.substring(0, 30) + '...' : item.GrantTitle
+        const labels = data.map((item, index) =>
+            `${item.GrantTitle.substring(0, 15)} (${index + 1})`
         );
         const values = data.map((item) => parseFloat(item.Funding) || 0); // Ensure valid numbers
 
