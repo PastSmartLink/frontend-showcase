@@ -66,9 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chartInstance.destroy();
         }
 
-        const labels = data.map((item, index) =>
-            `${item.GrantTitle.substring(0, 15)} (${index + 1})`
-        );
+        const labels = data.map((item) => truncateText(item.GrantTitle, 20));
         const values = data.map((item) => parseFloat(item.Funding) || 0);
         const links = data.map((item) => item.Link);
         const colors = values.map(
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rows = csvData.split('\n').slice(1);
                 currentData = rows
                     .filter((row) => row.trim() !== '')
-                    .map((row, index) => {
+                    .map((row) => {
                         const columns = row.split(';');
                         const funding = parseFloat(columns[2]);
                         const mockFunding = Math.floor(Math.random() * 500000) + 50000;
