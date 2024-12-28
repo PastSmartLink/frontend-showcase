@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         return {
                             GrantTitle: columns[0] || 'N/A',
                             Deadline: columns[1] || 'N/A',
-                            Funding: parseFloat(columns[2]) || 0,
+                            Funding: isNaN(parseFloat(columns[2])) ? 0 : parseFloat(columns[2]), // Handle non-numeric values
                             Description: columns[3] || 'N/A',
                             Link: columns[4] || '#',
                         };
