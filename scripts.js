@@ -69,7 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const labels = data.map((item) =>
             item.GrantTitle.length > 30 ? item.GrantTitle.substring(0, 30) + '...' : item.GrantTitle
         );
-        const values = data.map((item) => parseFloat(item.Funding) || 0);
+        const values = data.map((item) => parseFloat(item.Funding) || 0); // Ensure valid numbers
+
+        console.log('Chart Labels:', labels); // Debug labels
+        console.log('Chart Values:', values); // Debug values
 
         chartInstance = new Chart(ctx, {
             type: 'bar',
@@ -114,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             Link: columns[4] || '#',
                         };
                     });
+
+                console.log('Parsed Data:', currentData); // Debug parsed data
                 renderTable(currentData);
                 updatePagination();
                 renderChart(currentData);
