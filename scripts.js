@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pageData.forEach((item) => {
             const row = `
                 <tr>
-                    <td title="${item.GrantTitle}">${truncateText(item.GrantTitle, 50)}</td>
+                    <td title="${item.GrantTitle}">${truncateText(item.GrantTitle, 100)}</td>
                     <td>${item.Deadline}</td>
                     <td>${item.Funding || 'N/A'}</td>
                     <td title="${item.Description}">${truncateText(item.Description, 100)}</td>
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chartInstance.destroy();
         }
 
-        const labels = data.map((item) => truncateText(item.GrantTitle, 20));
+        const labels = data.map((item) => truncateText(item.GrantTitle, 50));
         const values = data.map((item) => parseFloat(item.Funding) || 0);
         const links = data.map((item) => item.Link);
         const colors = values.map(
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
 
                         return {
-                            GrantTitle: columns[0] && columns[0].trim() !== '' ? columns[0] : `Project ${Math.random().toString(36).substring(2, 8)}`,
+                            GrantTitle: columns[0] || 'N/A',
                             Deadline: columns[1] || 'N/A',
                             Funding: validFunding,
                             Description: columns[3] || 'N/A',
