@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const labels = data.map((item, index) =>
-            `${item.GrantTitle.substring(0, 15)} (${index + 1})`
+            `${truncateText(item.GrantTitle, 30)} (${index + 1})`
         );
         const values = data.map((item) => parseFloat(item.Funding) || 0);
         const links = data.map((item) => item.Link);
@@ -99,6 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         callbacks: {
                             title: (tooltipItems) => data[tooltipItems[0].dataIndex].GrantTitle,
                             label: (context) => `Funding: $${context.raw.toLocaleString()}`,
+                        },
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true },
+                            pinch: { enabled: true },
+                            mode: 'x', // Zoom in the x-axis
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
                         },
                     },
                 },
@@ -137,17 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentData = rows
                     .filter((row) => row.trim() !== '')
                     .map((row, index) => {
-                        const columns = row.split(';');
-                        const funding = parseFloat(columns[2]);
-                        const mockFunding = Math.floor(Math.random() * 500000) + 50000;
-                        const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding;
-
+                        const columns = row.split(',');
                         return {
-                            GrantTitle: columns[0] || 'N/A',
+                            GrantTitle: columns[0].replace(/"/g, '') || 'N/A',
                             Deadline: columns[1] || 'N/A',
-                            Funding: validFunding,
-                            Description: columns[3] || 'N/A',
-                            Link: columns[4] || '#',
+                            Funding: parseFloat(columns[2]) || 0,
+                            Description: columns[3].replace(/"/g, '') || 'N/A',
+                            Link: columns[4].replace(/"/g, '') || '#',
                         };
                     });
 
