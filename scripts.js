@@ -156,14 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         const baseURL = 'https://cordis.europa.eu/project/id/';
                         const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
 
-                        const grantTitle = columns[0]?.trim() || 'N/A';
-                        console.log('Parsed Grant Title:', grantTitle);
-
                         return {
-                            GrantTitle: grantTitle,
-                            Deadline: columns[1]?.trim() || 'N/A',
+                            GrantTitle: columns[0] && columns[0].trim() !== '' ? columns[0] : `Project ${Math.random().toString(36).substring(2, 8)}`,
+                            Deadline: columns[1] || 'N/A',
                             Funding: validFunding,
-                            Description: columns[3]?.trim() || 'N/A',
+                            Description: columns[3] || 'N/A',
                             Link: link,
                         };
                     });
