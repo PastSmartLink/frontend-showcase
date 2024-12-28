@@ -12,12 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentData = [];
 
     const truncateText = (text, maxLength) => {
-        if (text.length <= maxLength) {
-            return text;
-        }
-        const truncated = text.slice(0, maxLength).trim();
-        const lastSpaceIndex = truncated.lastIndexOf(' ');
-        return lastSpaceIndex > 0 ? truncated.slice(0, lastSpaceIndex) + '...' : truncated + '...';
+        if (text.length <= maxLength) return text;
+        const lastSpaceIndex = text.lastIndexOf(' ', maxLength);
+        return lastSpaceIndex > 0 ? text.substring(0, lastSpaceIndex) + '...' : text.substring(0, maxLength) + '...';
     };
 
     const renderTable = (data) => {
@@ -159,11 +156,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const baseURL = 'https://cordis.europa.eu/project/id/';
                         const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
 
+                        const grantTitle = columns[0]?.trim() || 'N/A';
+                        console.log('Parsed Grant Title:', grantTitle);
+
                         return {
-                            GrantTitle: columns[0]?.trim() || 'N/A',
-                            Deadline: columns[1] || 'N/A',
+                            GrantTitle: grantTitle,
+                            Deadline: columns[1]?.trim() || 'N/A',
                             Funding: validFunding,
-                            Description: columns[3] || 'N/A',
+                            Description: columns[3]?.trim() || 'N/A',
                             Link: link,
                         };
                     });
