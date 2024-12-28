@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
 
                         return {
-                            GrantTitle: columns[0] || 'N/A',
+                            GrantTitle: columns[0]?.trim() || 'N/A',
                             Deadline: columns[1] || 'N/A',
                             Funding: validFunding,
                             Description: columns[3] || 'N/A',
