@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentData = [];
 
     const truncateText = (text, maxLength) => {
-        if (!text) return '';
         if (text.length <= maxLength) return text;
         const lastSpaceIndex = text.lastIndexOf(' ', maxLength);
         return lastSpaceIndex > 0 ? text.substring(0, lastSpaceIndex) + '...' : text.substring(0, maxLength) + '...';
@@ -31,16 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         pageData.forEach((item) => {
-            const validLink = item.Link && item.Link.startsWith('https://');
             const row = `
                 <tr>
                     <td title="${item.GrantTitle}">${truncateText(item.GrantTitle, 50)}</td>
-                    <td>${item.Deadline || 'N/A'}</td>
+                    <td>${item.Deadline}</td>
                     <td>${item.Funding || 'N/A'}</td>
                     <td title="${item.Description}">${truncateText(item.Description, 100)}</td>
-                    <td>
-                        ${validLink ? `<a href="${item.Link}" target="_blank">Link</a>` : '<span>No Link</span>'}
-                    </td>
+                    <td><a href="${item.Link}" target="_blank">Link</a></td>
                 </tr>`;
             resultsTableBody.innerHTML += row;
         });
@@ -133,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (elements.length > 0) {
                         const dataIndex = elements[0].index;
                         const link = links[dataIndex];
-                        if (link && link.startsWith('https://')) {
+                        if (link && link !== '#') {
                             window.open(link, '_blank');
                         } else {
                             alert('No valid link for this item.');
@@ -148,26 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('cordis_results.csv')
             .then((response) => response.text())
             .then((csvData) => {
-                const rows = csvData.split('\n').slice(1);
+                const rows = csvData.split('\n').slice(1); // Skip the header
                 currentData = rows
-                    .filter((row) => row.trim() !== '')
-                    .map((row) => {
-                        const columns = row.split(';');
-                        const funding = parseFloat(columns[2]);
+                    .filter((row) => row.trim() !== '') // Exclude empty rows
+                    .map((row, index) => {
+                        const columns = row.split(';'); // Adjust based on your delimiter
+                        
+                        // Debugging: Log rows and column structure
+                        console.log(`Row ${index + 1}:`, columns);
+
+                        // Extract data and handle missing fields
+                        const grantTitle = columns[3]?.trim() || `Project ${index + 1}`;
+                        const funding = parseFloat(columns[4]);
                         const mockFunding = Math.floor(Math.random() * 500000) + 50000;
                         const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding;
 
                         const baseURL = 'https://cordis.europa.eu/project/id/';
-                        const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
+                        const link = columns[14]?.trim() ? `${baseURL}${columns[14].trim()}` : '#';
 
                         return {
-                            GrantTitle: columns[0]?.trim() || 'N/A',
-                            Deadline: columns[1]?.trim() || 'N/A',
+                            GrantTitle: grantTitle,
+                            Deadline: columns[10]?.trim() || 'N/A',
                             Funding: validFunding,
-                            Description: columns[3]?.trim() || 'N/A',
-                            Link: link.trim(),
+                            Description: columns[5]?.trim() || 'N/A',
+                            Link: link,
                         };
                     });
+
+                // Debugging: Check currentData array
+                console.log('Parsed Data:', currentData);
 
                 renderTable(currentData);
                 updatePagination();
