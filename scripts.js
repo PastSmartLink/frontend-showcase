@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pageData.forEach((item) => {
             const row = `
                 <tr>
-                    <td title="${item.GrantTitle}">${truncateText(item.GrantTitle, 100)}</td>
+                    <td title="${item.GrantTitle}">${truncateText(item.GrantTitle, 50)}</td>
                     <td>${item.Deadline}</td>
                     <td>${item.Funding || 'N/A'}</td>
                     <td title="${item.Description}">${truncateText(item.Description, 100)}</td>
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chartInstance.destroy();
         }
 
-        const labels = data.map((item) => truncateText(item.GrantTitle, 50));
+        const labels = data.map((item) => truncateText(item.GrantTitle, 20));
         const values = data.map((item) => parseFloat(item.Funding) || 0);
         const links = data.map((item) => item.Link);
         const colors = values.map(
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         zoom: {
                             wheel: { enabled: true },
                             pinch: { enabled: true },
-                            mode: 'x', // Zoom in the x-axis
+                            mode: 'x',
                         },
                         pan: {
                             enabled: true,
@@ -149,19 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     .filter((row) => row.trim() !== '')
                     .map((row) => {
                         const columns = row.split(';');
-                        const funding = parseFloat(columns[2]);
-                        const mockFunding = Math.floor(Math.random() * 500000) + 50000;
-                        const validFunding = !isNaN(funding) && funding > 0 ? funding : mockFunding;
-
-                        const baseURL = 'https://cordis.europa.eu/project/id/';
-                        const link = columns[4] ? `${baseURL}${columns[4].trim()}` : '#';
+                        const funding = parseFloat(columns[2]) || Math.floor(Math.random() * 500000) + 50000;
 
                         return {
-                            GrantTitle: columns[0] || 'N/A',
-                            Deadline: columns[1] || 'N/A',
-                            Funding: validFunding,
-                            Description: columns[3] || 'N/A',
-                            Link: link,
+                            GrantTitle: columns[3] || 'Unnamed Project',
+                            Deadline: columns[10] || 'N/A',
+                            Funding: funding,
+                            Description: columns[5] || 'No Description Available',
+                            Link: columns[14]?.trim() || '#',
                         };
                     });
 
